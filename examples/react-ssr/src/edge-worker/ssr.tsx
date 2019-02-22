@@ -10,69 +10,79 @@ import { reducer, getInitialState } from "../shared/reducer";
 import * as actions from "../shared/reducer";
 import { RootState } from "../shared/RootState";
 import tags from "./tags.json";
-import { getPost } from "./api";
+import { getPost } from "./storage";
+import { Router } from "../lib/Router";
 
-export const ssr = async (req: Request, _init: any) => {
+const router = new Router({
+  // postAction: async t => {
+  //   return t;
+  // }
+});
+
+router.add<{}>("/", () => async (req: Request) => {
+  const pathname = url.parse(req.url).pathname as string;
+  const initialState = getInitialState(pathname, Date.now());
+  const state = initialState;
+  const html = render(state);
+  return new Response(html);
+});
+
+router.add("/post/:id", ({ id }: { id: string }) => async (req: Request) => {
   const pathname = url.parse(req.url).pathname as string;
   const initialState = getInitialState(pathname, Date.now());
 
-  // cacheable url
-  // /item/1, /item/2
-  if (pathname.includes("/post/")) {
-    const cached = await cache.getString(req.url);
-    if (cached != null) {
-      console.log("--- use cache for", req.url, cached.length);
-      return new Response(cached);
-    } else {
-      // render and cache
-      const id = pathname.replace("/post/", "");
-      console.log("--- create cache");
-      const post = await getPost(id);
+  const cached = await cache.getString(req.url);
+  if (cached != null) {
+    console.log("--- use cache for", req.url, cached.length);
+    return new Response(cached);
+  } else {
+    // render and cache
+    console.log("--- create cache");
+    const post = await getPost(id);
 
-      if (post) {
-        const state = reducer(initialState, actions.setPost(post));
-        const html = render(state);
-        await cache.set(req.url, html, {
-          tags: ["Item", tags.ALL]
-        });
-        return new Response(html);
-      } else {
-        // 404
-        const html = render(initialState);
-        return new Response(html, { status: 404 });
-      }
-    }
-  }
-
-  // top page
-  if (pathname === "/hn") {
-    const cached = await cache.getString(req.url);
-    if (cached != null) {
-      console.log("--- use cache for", req.url, cached.length);
-      return new Response(cached);
-    } else {
-      console.log("--- create cache");
-      // build
-      const state = reducer(
-        initialState,
-        actions.updateStories(await getHNStories())
-      );
-
+    if (post) {
+      const state = reducer(initialState, actions.setPost(post));
       const html = render(state);
       await cache.set(req.url, html, {
-        tags: [tags.ALL]
+        tags: ["Item", tags.ALL]
       });
-      // cache 1 hour
-      await cache.expire(req.url, 60 * 60);
       return new Response(html);
+    } else {
+      // 404
+      const html = render(initialState);
+      return new Response(html, { status: 404 });
     }
   }
+});
 
-  // initialState
-  const state = initialState;
-  const html = render(state);
+router.add("/hn", () => async (req: Request) => {
+  const pathname = url.parse(req.url).pathname as string;
+  const initialState = getInitialState(pathname, Date.now());
 
-  return new Response(html);
+  const cached = await cache.getString(req.url);
+  if (cached != null) {
+    console.log("--- use cache for", req.url, cached.length);
+    return new Response(cached);
+  } else {
+    console.log("--- create cache");
+    // build
+    const state = reducer(
+      initialState,
+      actions.updateStories(await getHNStories())
+    );
+
+    const html = render(state);
+    await cache.set(req.url, html, {
+      tags: [tags.ALL]
+    });
+    // cache 1 hour
+    await cache.expire(req.url, 60 * 60);
+    return new Response(html);
+  }
+});
+
+export const ssr = async (req: Request, _init: any) => {
+  return router.run(req);
 };
 
 const render = (state: RootState) => {
