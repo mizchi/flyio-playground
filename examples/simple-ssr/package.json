@@ -1,0 +1,48 @@
+{
+  "name": "flyio-simple-ssr-example",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "run-p dev:*",
+    "dev:edge-server": "fly server",
+    "dev:watch-client": "webpack --config webpack.client.config.js -w --mode development",
+    "build": "run-s build:*",
+    "build:client": "webpack --config webpack.client.config.js --mode production",
+    "test": "jest",
+    "deploy": "yarn build && fly deploy"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.9",
+    "@types/node": "^11.9.4",
+    "@types/react": "^16.8.3",
+    "@types/react-dom": "^16.8.2",
+    "@types/react-router-dom": "^4.3.1",
+    "@types/styled-components": "^4.1.10",
+    "jest": "^23.6.0",
+    "netlify-cli": "^2.2.1",
+    "npm-run-all": "^4.1.5",
+    "ts-jest": "^23.10.4",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.1.3",
+    "webpack": "4.29.5",
+    "webpack-cli": "^3.2.3"
+  },
+  "dependencies": {
+    "@fly/cdn": "^0.5.2",
+    "axios": "^0.18.0",
+    "path-to-regexp": "^3.0.0",
+    "react": "^16.8.2",
+    "react-dom": "^16.8.2",
+    "react-redux": "^6.0.1",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "redux": "^4.0.1",
+    "styled-components": "^4.1.3",
+    "ulid": "^2.3.0"
+  },
+  "resolutions": {
+    "webpack": "4.29.5"
+  }
+}
