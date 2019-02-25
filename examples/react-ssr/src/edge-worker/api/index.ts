@@ -1,7 +1,7 @@
 import cache from "@fly/cache";
-import tags from "./tags.json";
-import { Router } from "../lib/Router";
-import { getRecentPosts, addNewPost, getPost } from "./storage";
+import { Router } from "../../lib/Router";
+import { getRecentPosts, addNewPost, getPost } from "../storage";
+import { rpc, foo } from "./rpc";
 
 const router = new Router({
   async postAction(result: Response | object) {
@@ -15,9 +15,20 @@ const router = new Router({
   }
 });
 
+router.add(
+  "/api/rpc/:name",
+  ({ name }: { name: string }) => async (req: Request) => {
+    console.log("rpc", name);
+    const data = await req.json();
+    const result = await rpc.funcMap[name](data);
+    return new Response(JSON.stringify(result), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+);
+
 router.add("/api/test", (_params: {}) => async (req: Request) => {
-  const data = await fetch("http://127.0.0.1/api/recent-posts");
-  return data;
+  return foo({ x: 1 });
 });
 
 router.add("/api/recent-posts", (_params: {}) => async (req: Request) => {
@@ -36,8 +47,8 @@ router.add("/api/add-item", (_params: {}) => async (req: Request) => {
 });
 
 router.add("/api/purge", (_params: {}) => async (req: Request) => {
-  await cache.purgeTag(tags.APP_VERSION_TAG);
-  return { purge: tags.ALL };
+  await cache.purgeTag("ALL");
+  return { purge: "ALL" };
 });
 
 router.add(

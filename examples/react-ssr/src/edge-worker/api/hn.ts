@@ -1,4 +1,4 @@
-import { HNStory } from "../shared/RootState";
+import { HNStory } from "../../shared/RootState";
 
 export async function getHNStories(): Promise<HNStory[]> {
   const ids: number[] = await fetch(

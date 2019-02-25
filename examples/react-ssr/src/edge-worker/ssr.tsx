@@ -1,15 +1,24 @@
 import url from "url";
-import { getHNStories } from "../api/hn";
+import { getHNStories } from "./api/hn";
 import { reducer, getInitialState } from "../shared/reducer";
 import * as actions from "../shared/reducer";
 import tags from "./tags.json";
 import { getPost } from "./storage";
 import { Router } from "../lib/Router";
 import { useCacheOrRender, renderApp } from "../lib/useCacheOrRender";
+import { callRpc } from "../lib/RpcRegistory";
+import { HNStory } from "../shared/RootState";
 
 const router = new Router();
 
 router.add<{}>("/", () => async (req: Request) => {
+  const pathname = url.parse(req.url).pathname as string;
+  const initialState = getInitialState(pathname, Date.now());
+  const html = renderApp(initialState);
+  return new Response(html);
+});
+
+router.add<{}>("/counter", () => async (req: Request) => {
   const pathname = url.parse(req.url).pathname as string;
   const initialState = getInitialState(pathname, Date.now());
   const html = renderApp(initialState);
@@ -42,7 +51,8 @@ router.add("/hn", () => async (req: Request) => {
   return useCacheOrRender(req.url, async initialState => {
     const state = reducer(
       initialState,
-      actions.updateStories(await getHNStories())
+      // actions.updateStories(await getHNStories())
+      actions.updateStories((await callRpc("hn", {})) as HNStory[])
     );
     return {
       status: 200,

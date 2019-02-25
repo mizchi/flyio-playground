@@ -1,6 +1,22 @@
-import React, { useEffect } from "react";
-import { getHNStories } from "../../api/hn";
+import React, { useEffect, Dispatch } from "react";
+import { getHNStories } from "../../edge-worker/api/hn";
 import { useRootState, useDispatch } from "../App";
+import { Action } from "../reducer";
+
+type UniversalContext = {
+  host: string;
+  dispatch: Dispatch<Action>;
+};
+
+export async function getInitialProps(context: UniversalContext) {
+  const stories = await getHNStories();
+  context.dispatch({
+    type: "hn:update-stories",
+    payload: {
+      stories
+    }
+  });
+}
 
 export function HackerNews() {
   const rootState = useRootState();

@@ -9,8 +9,10 @@ import { Post as PostComponent } from "./components/Post";
 import { Header } from "./components/Header";
 import { Counter } from "./components/Counter";
 
-const RootContext = React.createContext<RootState>(null as any);
-const DispatchContext = React.createContext<Dispatch<Action>>(null as any);
+export const RootContext = React.createContext<RootState>(null as any);
+export const DispatchContext = React.createContext<Dispatch<Action>>(
+  null as any
+);
 
 export function useRootState(): RootState {
   return useContext(RootContext);
