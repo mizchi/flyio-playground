@@ -13,11 +13,10 @@
 
 ## Deploy
 
-Create account: [fly.io](https://fly.io)
+Create account: [fly.io](https://fly.io) and Add your account
 
 - Remove `.fly.yml`
 - `npm install -g @fly/fly`
-- `fly new`: Create your fly.io app
 - `yarn deploy`: Deploy to fly.io
 
 ## TODO

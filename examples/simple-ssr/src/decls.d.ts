@@ -1,3 +1,7 @@
 declare module "@fly/*";
 
-declare var fly: any;
+declare var fly: {
+  http: {
+    respondWith: any
+  }
+};

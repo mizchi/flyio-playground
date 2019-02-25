@@ -4,6 +4,8 @@ import styled, { createGlobalStyle } from "styled-components";
 import { Action, reducer, RootState } from "./reducer";
 import * as actions from "./reducer";
 
+// RootState context
+
 export const RootContext = React.createContext<RootState>(null as any);
 export const DispatchContext = React.createContext<Dispatch<Action>>(
   null as any

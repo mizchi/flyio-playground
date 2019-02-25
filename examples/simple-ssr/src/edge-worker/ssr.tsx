@@ -16,14 +16,13 @@ export const ssr = async (req: Request, _init: any) => {
 
 function renderApp(state: RootState) {
   const sheet = new ServerStyleSheet();
-
   const element = sheet.collectStyles(
     <StaticRouter location={state.url}>
       <App {...state} />
     </StaticRouter>
   );
 
-  const contentHtml = ReactDOMServer.renderToString(element);
+  const html = ReactDOMServer.renderToString(element);
   const styleTags = sheet.getStyleTags();
   const serializedState = JSON.stringify(state).replace(/</g, "\\u003c");
   return `<!DOCTYPE html>
@@ -34,7 +33,7 @@ function renderApp(state: RootState) {
   ${styleTags}
 </head>
 <body>
-  <div class="root">${contentHtml}</div>
+  <div class="root">${html}</div>
   <!-- SSR -->
   <script>window.__initialState = ${serializedState};</script>
   <script src="/static/bundle.js"></script>
